@@ -1,17 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
-#include <termios.h>
-//#include <term.h>
-#include <unistd.h>
-/*
-
+#include <conio.h>
 #include <windows.h>
 #include <io.h>
 #include <direct.h>
-*/
-
+#include <time.h>
 
 #define _CRT_SECURE_NO_WARNINGS
 #pragma warning(disable : 4996)
@@ -39,35 +33,6 @@ int pwTimeLogging(char* id, int count);/*password time logging for Accuracy*/
 void insertTime(char* path, double* time);/*Record a new time after backup*/
 void time_interval(double* time, int pwSize);/*Time between word and word*/
 char* find_pw(char* path);/*Find password using path(any path)*/
-
-int _getch(void)  
-{  
-  int ch;  
-  struct termios buf;  
-  struct termios save;  
-  
-   tcgetattr(0, &save);  
-   buf = save;  
-   buf.c_lflag &= ~(ICANON|ECHO);  
-   buf.c_cc[VMIN] = 1;  
-   buf.c_cc[VTIME] = 0;  
-   tcsetattr(0, TCSAFLUSH, &buf);  
-   ch = getchar();  
-   tcsetattr(0, TCSAFLUSH, &save);  
-   return ch;  
-} 
-
-char* strlwr(const char *str)
-{
-	char *arr = (char*)str;
-
-    while(*arr) {
-		if(*arr >= 97 && *arr <= 132) {
-			*arr -= 32;
-		}
-	}
-	return arr;
-}
 
 int main(void)
 {
@@ -98,16 +63,11 @@ int main(void)
 /*Make root directory for save id*/
 void makeRootDirectory() {
 
-	//if (_mkdir("root") == 0);
-	
+	if (_mkdir("root") == 0);
 	//printf("Root directry succesfully create\n");
 
-	//else;
+	else;
 	//printf("Root directory is already created\n");
-
-	if (access("./root/", 0)) {//Not exist root file
-		system("mkdir root");
-	}
 }
 
 /*Menu for move pointer*/
@@ -115,10 +75,10 @@ void makeRootDirectory() {
 int menu() {
 
 	int setNumber = 1;
-	int pastNumber = 1;//If user not input pointer
+	int pastNumber = 1;
 
 	while (1) {
-		system("clear");
+		system("cls");
 
 		printf("1. login ");
 		if (setNumber == 1) printf("<-");
@@ -178,10 +138,10 @@ void login_check() {
 	char path[ID_MAX + 20];
 
 	while (1) {//Check id
-		system("clear");
+		system("cls");
 
 		printf("ID : ");
-		scanf("%s", id);
+		scanf_s("%s", id, sizeof(id));
 
 		if (!strcmp(strlwr(id), "back"))//back
 			return;
@@ -190,7 +150,7 @@ void login_check() {
 		strcat(path, "root//");
 		strcat(path, id);
 
-		if (access(path, 0) != 0) {//Not exist file
+		if (_access(path, 0) != 0) {//Not exist file
 			printf("Unvalid ID <Press any key>\n");
 			_getch();
 		}
@@ -410,7 +370,7 @@ void setRegister() {
 		system("cls");
 
 		printf("CREATE ID = ");
-		scanf("%s", id, sizeof(id));
+		scanf_s("%s", id, sizeof(id));
 
 		if (!strcmp(strlwr(id), "back"))//Back
 			return;
@@ -419,7 +379,7 @@ void setRegister() {
 		strncat(path, "root//", sizeof("root//"));
 		strncat(path, id, sizeof(id));
 
-		if (access(path, 0) == 0)//sucessfully create
+		if (_mkdir(path) == 0)//sucessfully create
 			break;
 
 		else {//Alreday exist or error
@@ -429,11 +389,10 @@ void setRegister() {
 	}
 
 	printf("CREATE PW = ");
-	scanf("%s", pw, sizeof(pw));
+	scanf_s("%s", pw, sizeof(pw));
 
 	if (!strcmp(strlwr(pw), "back")) {//Back
-		//_rmdir(path);//Remove id directory
-		system(strcat("system ", path));
+		_rmdir(path);//Remove id directory
 		return;
 	}
 
@@ -450,8 +409,7 @@ void setRegister() {
 		strcat(path, id);
 
 		//remove directory
-		system(strcat("system ", path));
-		if (access(strcat("system ", path),0) == -1)
+		if (_rmdir(path) == 0)
 			printf("\nRemove directry success\n");
 
 		else
@@ -478,7 +436,7 @@ int pwTimeLogging(char* id, int count) {//password time loging
 	pw[0] = NULL;
 	strcat(pw, find_pw(id));
 
-	if (access(path, 0) != 0) {//Not exist file
+	if (_access(path, 0) != 0) {//Not exist file
 		fp = fopen(path, "a");
 		fputc('0', fp);
 		fclose(fp);
@@ -533,7 +491,7 @@ void insertTime(char* path, double* time) {
 	strcat(pw, find_pw(path));
 
 	fp = fopen(path, "r");//Append file stream open
-	fscanf(fp, "%d", &dataNum);//Read data number
+	fscanf_s(fp, "%d", &dataNum);//Read data number
 
 	//integer is also okay(under te floating point flush)
 	arr = (int**)malloc(sizeof(int*) * dataNum);//Dynamic allocation h
